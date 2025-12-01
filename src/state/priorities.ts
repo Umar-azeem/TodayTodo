@@ -1,0 +1,1 @@
+export const priorities = [{title:"High"},{title:"Medium"}]
