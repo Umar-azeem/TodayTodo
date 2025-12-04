@@ -24,7 +24,8 @@ export default function ProjectPage() {
 
   const projects = useProjectStore((s) => s.projects);
   const tasks = useTodoStore((state) => state.tasks);
-
+ const deleteTask = useTodoStore((state) => state.deleteTask);
+  const completeTask = useTodoStore((state) => state.completeTask);
   const projectTasks = tasks.filter((task) => task.projectId === projectId);
 
   const today = new Date();
@@ -64,8 +65,12 @@ export default function ProjectPage() {
                 className="flex border-b border-gray-200 items-center justify-between p-3 bg-card rounded-md"
               >
                 <div className="flex items-center gap-3">
-                  <CircleCheck />
-
+                 <CircleCheck
+                    onClick={() => completeTask(task.taskId)}
+                    className={`cursor-pointer ${
+                      task.completed ? "text-green-500" : ""
+                    }`}
+                  />
                   <div>
                     <p
                       className={
@@ -111,7 +116,7 @@ export default function ProjectPage() {
                     <DropdownMenuContent>
                       <DropdownMenuItem>
                         <button className="p-2 flex gap-2 w-full">
-                          <Trash2 size={16} /> Delete
+                          <Trash2 onClick={()=> {deleteTask(task.taskId)}} size={16} /> Delete
                         </button>
                       </DropdownMenuItem>
 

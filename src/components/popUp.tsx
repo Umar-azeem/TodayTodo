@@ -1,110 +1,116 @@
 "use client";
-import * as React from "react";
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import {
-  Popover,
-  PopoverTrigger,
-  PopoverContent,
-} from "@/components/ui/popover";
-import { CalendarIcon, AlarmClock, Flag, Ellipsis, Inbox } from "lucide-react";
+import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
 import { format } from "date-fns";
+import { CalendarIcon, Flag, AlarmClock, Inbox } from "lucide-react";
 import {
   Command,
+  CommandGroup,
   CommandItem,
   CommandList,
-  CommandInput,
-  CommandGroup,
 } from "@/components/ui/command";
-import { useProjectStore, useTodoStore } from "@/state";
-import { useParams } from "next/navigation";
+import {
+  Select,
+  SelectTrigger,
+  SelectContent,
+  SelectItem,
+} from "@/components/ui/select";
+import { useOutsideClick } from "./useOutsideClick";
+import { useProjectStore } from "@/state";
+import { usePopUpLogic } from "./usePopUpLogic";
+import { useRef } from "react";
+
 interface PopUpProps {
+  selectedDate: Date;
+  handleClose: () => void;
   handleTaskInput: () => void;
 }
 
-function PopUp({ handleTaskInput }: PopUpProps) {
-  const project = [{ item: "Inbox", icon: Ellipsis }];
-  const [date, setDate] = useState<Date | undefined>();
-  const [priority, setPriority] = useState<string>("Priority 2");
-  const [reminder, setReminder] = useState<string>("No reminder");
-  const [description, SetDescription] = useState<string>("");
-  // const [status, setStatus] = useState<boolean>(false);
+export default function PopUp({ selectedDate, handleClose , handleTaskInput}: PopUpProps) {
+  const popupRef = useRef(null);
+
+  const {
+    date,
+    inputData,
+    description,
+    priority,
+    reminder,
+    setDate,
+    setInputData,
+    setDescription,
+    setPriority,
+    setReminder,
+    handleAddTask,
+  } = usePopUpLogic(selectedDate);
+  useOutsideClick(popupRef, handleClose);
   const projects = useProjectStore((s) => s.projects);
-  // const [addData, setAddData] = useState<string>('');
-  const [inputData, setInputData] = useState<string>("");
-  const addTask = useTodoStore((s) => s.addTask);
-  const params = useParams();
-  const projectId = Array.isArray(params.id) ? params.id[0] : params.id ?? "";
-
-  const formattedDate = date
-    ? new Date(date).toISOString().split("T")[0]
-    : new Date().toISOString().split("T")[0];
-  const taskId = crypto.randomUUID();
-
-  const handleAddTask = () => {
-    if (!inputData.trim()) return;
-    addTask({
-      taskId: taskId,
-      name: inputData,
-      description: description,
-      priority: priority,
-      dueDate: formattedDate,
-      reminder: reminder,
-      completed: false,
-      createdAt: new Date().toISOString(),
-      projectId: projectId,
-    });
-    setInputData("");
+  const priorityColors: Record<string, string> = {
+    "Priority 1": "text-red-600",
+    "Priority 2": "text-orange-500",
+    "Priority 3": "text-blue-600",
+    "Priority 4": "text-gray-400",
   };
 
-  
   return (
-    <div className="border rounded-xl m-2 py-4 px-2 w-full h-1/4 bg-white shadow-2xl sha shadow-gray-400">
+    <div
+      ref={popupRef}
+      className="border rounded-xl p-4 bg-white shadow-lg w-full"
+    >
       <input
-        className="w-full  text-sm outline-none"
         placeholder="Task name"
+        className="w-full outline-none text-sm"
         value={inputData}
         onChange={(e) => setInputData(e.target.value)}
+         onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      handleTaskInput();
+                      handleAddTask()
+                    }
+                  }}
       />
-      {JSON.stringify(inputData)}
+
       <textarea
-        className="w-full text-sm mt-1 outline-none"
         placeholder="Description"
-        onChange={(e) => SetDescription(e.target.value)}
-        onKeyDown={(e) => e.key === "Enter" && handleAddTask}
+        className="w-full text-sm mt-2 outline-none"
+        value={description}
+        onChange={(e) => setDescription(e.target.value)}
+         onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      handleTaskInput();
+                      handleAddTask()
+                    }
+                  }}
       />
-      <div className="flex items-center gap-1 mt-1 text-xs">
+
+      <div className="flex items-center gap-2 mt-2">
+        {/* Date Picker */}
         <Popover>
           <PopoverTrigger asChild>
-            <Button variant="outline" className="flex gap-1">
-              <CalendarIcon size={10} />
+            <Button variant="outline" className="flex gap-2 text-xs">
+              <CalendarIcon size={14} />
               {date ? format(date, "PPP") : "Date"}
             </Button>
           </PopoverTrigger>
-          <PopoverContent className="w-auto p-2">
-            <Calendar mode="single" selected={date} onSelect={setDate} />
+          <PopoverContent className="p-2">
+            <Calendar
+              mode="single"
+              selected={date}
+              onSelect={(d) => d && setDate(d)}
+            />
           </PopoverContent>
         </Popover>
+
+        {/* Priority */}
         <Popover>
           <PopoverTrigger asChild>
-            <Button variant="outline" className="flex ">
-              <Flag size={10} />
+            <Button variant="outline" className="flex gap-2 text-xs items-center">
+              <Flag size={16} className={priorityColors[priority]} />
               {priority}
             </Button>
           </PopoverTrigger>
-
-          <PopoverContent className="p-2 w-40">
+          <PopoverContent>
             <Command>
-              <CommandInput placeholder="priority..." />
               <CommandList>
                 <CommandGroup>
                   {["Priority 1", "Priority 2", "Priority 3", "Priority 4"].map(
@@ -119,16 +125,16 @@ function PopUp({ handleTaskInput }: PopUpProps) {
             </Command>
           </PopoverContent>
         </Popover>
+
+        {/* Reminder */}
         <Popover>
           <PopoverTrigger asChild>
-            <Button variant="outline" className="flex gap-2">
+            <Button variant="outline" className="flex gap-2 text-xs">
               <AlarmClock size={14} /> {reminder}
             </Button>
           </PopoverTrigger>
-
-          <PopoverContent className="w-48 p-2">
+          <PopoverContent>
             <Command>
-              <CommandInput placeholder="reminder..." />
               <CommandList>
                 <CommandGroup>
                   {["No reminder", "Today 6pm", "Tomorrow 9am", "Custom"].map(
@@ -143,60 +149,37 @@ function PopUp({ handleTaskInput }: PopUpProps) {
             </Command>
           </PopoverContent>
         </Popover>
-        <Popover>
-          <PopoverTrigger asChild>
-            <Button variant="outline" className="flex gap-2">
-              <Ellipsis />
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent className="p-2 w-52">
-            <Command>
-              <CommandInput placeholder="search projects..." />
-              <CommandList>
-                <CommandGroup>
-                  {project.map((p) => (
-                    <CommandItem
-                      key={p.item}
-                      // onSelect={() => setProject(p)}
-                    >
-                      <p.icon className="mr-2 h-4 w-4" />
-                      {p.item}
-                    </CommandItem>
-                  ))}
-                </CommandGroup>
-              </CommandList>
-            </Command>
-          </PopoverContent>
-        </Popover>
       </div>
-      <div className="mt-2 flex justify-between items-center">
+
+      <div className="mt-3">
         <Select>
-          <SelectTrigger className="w-[100px]">
-            <Inbox className="h-4 w-4" />
-            <SelectValue placeholder="inbox" />
+          <SelectTrigger className="w-36">
+            <Inbox size={14} />
           </SelectTrigger>
           <SelectContent>
             {projects.map((p) => (
-              <SelectGroup key={p.id}>
-                <SelectItem value="p">{p.name}</SelectItem>
-              </SelectGroup>
+              <SelectItem key={p.id} value={p.id}>
+                {p.name}
+              </SelectItem>
             ))}
           </SelectContent>
         </Select>
-        <div className="flex justify-end gap-2 ">
-          <Button variant="outline">Cancel</Button>
-          <Button
-            onClick={() => {
-              handleAddTask();
-              handleTaskInput();
-            }}
-            className="bg-red-500 hover:bg-red-600 text-white"
-          >
-            Add task
-          </Button>
-        </div>
+      </div>
+      <div className="flex justify-end gap-2 mt-4 ">
+        <Button variant="outline" onClick={handleTaskInput}>
+          Cancel
+        </Button>
+
+        <Button
+          onClick={() => {
+            handleAddTask();
+            handleTaskInput();
+          }}
+          className="bg-red-500 text-white"
+        >
+          Add Task
+        </Button>
       </div>
     </div>
   );
 }
-export default PopUp;
