@@ -1,13 +1,21 @@
 "use client";
-import { Task } from '@/state'; 
+import { Task } from "@/state";
 
-interface TaskDetailsProps { 
+interface TaskDetailsProps {
   handleShowTask: () => void;
   task: Task;
 }
 
 import { useTodoStore } from "@/state";
-import { CalendarDays, Flag, Hash, Bell, MapPin, CircleCheck } from "lucide-react";
+import {
+  CalendarDays,
+  Flag,
+  Hash,
+  Bell,
+  MapPin,
+  CircleCheck,
+  Circle,
+} from "lucide-react";
 interface TaskDetailsProps {
   handleShowTask: () => void;
   task: Task;
@@ -17,8 +25,8 @@ export default function TaskDetails({
   handleShowTask,
   task,
 }: TaskDetailsProps) {
-    const completeTask = useTodoStore((state) => state.completeTask);
-  
+  const completeTask = useTodoStore((state) => state.completeTask);
+
   return (
     <div className="fixed inset-0 bg-black/40 flex justify-center items-center z-50">
       <div className="bg-white max-w-3xl w-full rounded-xl shadow-lg relative flex">
@@ -31,16 +39,22 @@ export default function TaskDetails({
           </button>
 
           <div className="flex items-center gap-2">
-                      <CircleCheck
-                        onClick={() => completeTask(task.taskId)}
-                        className={`cursor-pointer w-4 h-4 ${
-                          task.completed ? "text-green-500" : ""
-                        }`}
-                      />
-                      <span className={task.completed ? "line-through" : ""}>
-                        {task.name}
-                      </span>
-                    </div>
+            {task.completed ? (
+              <CircleCheck
+                onClick={() => completeTask(task.taskId)}
+                className="cursor-pointer w-4 h-4 text-green-500"
+              />
+            ) : (
+              <Circle
+                onClick={() => completeTask(task.taskId)}
+                className="cursor-pointer w-4 h-4"
+              />
+            )}
+
+            <span className={task.completed ? "line-through" : ""}>
+              {task.name}
+            </span>
+          </div>
 
           <p className="ml-7 mt-2 text-gray-600">{task.description}</p>
         </div>

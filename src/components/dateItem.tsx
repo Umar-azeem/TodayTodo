@@ -8,12 +8,14 @@ import {
 import { Calendar } from "@/components/ui/calendar";
 import { format } from "date-fns";
 import { CalendarIcon, Flag, AlarmClock, Inbox } from "lucide-react";
+
 import {
   Command,
   CommandGroup,
   CommandItem,
   CommandList,
 } from "@/components/ui/command";
+
 import {
   Select,
   SelectTrigger,
@@ -23,17 +25,35 @@ import {
 import { useOutsideClick } from "./useOutsideClick";
 import { useProjectStore } from "@/state";
 import { usePopUpLogic } from "./usePopUpLogic";
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
+import { useInView } from "react-intersection-observer";
+import { threadId } from "worker_threads";
+
 interface PopUpProps {
   selectedDate: Date;
   handleClose: () => void;
   handleTaskInput: () => void;
 }
+
+
 export default function PopUp({
   selectedDate,
   handleClose,
   handleTaskInput,
 }: PopUpProps) {
+  const popupRef = useRef(null);
+  const [ref, inView]= useInView( {
+    threshold: 1,
+  });
+
+  useEffect(()=> {
+    if (inView &&  hasNextpage){
+      fetchNextPage();
+    }
+  }, [inView.fetchNextPage,hasNextPage]);
+
+  
+
   const {
     date,
     inputData,
@@ -47,8 +67,6 @@ export default function PopUp({
     setReminder,
     handleAddTask,
   } = usePopUpLogic(selectedDate);
-  const popupRef = useRef<HTMLDivElement>(null);
-
   useOutsideClick(popupRef, handleClose);
   const projects = useProjectStore((s) => s.projects);
   const priorityColors: Record<string, string> = {
@@ -57,6 +75,7 @@ export default function PopUp({
     "Priority 3": "text-blue-600",
     "Priority 4": "text-gray-400",
   };
+
   return (
     <div
       ref={popupRef}
@@ -76,6 +95,7 @@ export default function PopUp({
           }
         }}
       />
+
       <textarea
         placeholder="Description"
         className="w-full text-sm mt-2 outline-none"
@@ -90,6 +110,7 @@ export default function PopUp({
           }
         }}
       />
+
       <div className="flex items-center gap-2 mt-2">
         <Popover>
           <PopoverTrigger asChild>
@@ -106,6 +127,7 @@ export default function PopUp({
             />
           </PopoverContent>
         </Popover>
+
         <Popover>
           <PopoverTrigger asChild>
             <Button
@@ -132,6 +154,7 @@ export default function PopUp({
             </Command>
           </PopoverContent>
         </Popover>
+
         <Popover>
           <PopoverTrigger asChild>
             <Button variant="outline" className="flex gap-2 text-xs">
@@ -155,6 +178,7 @@ export default function PopUp({
           </PopoverContent>
         </Popover>
       </div>
+
       <div className="mt-3">
         <Select>
           <SelectTrigger className="w-36">
@@ -186,4 +210,3 @@ export default function PopUp({
       </div>
     </div>
   );
-}
