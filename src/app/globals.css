@@ -11,6 +11,68 @@
 
 /* 
 ---break--- */
+@keyframes slideUp {
+  0% {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(0px);
+    opacity: 1;
+  }
+}
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.25s ease-out;
+}
+
+
+.animate-fadeIn {
+  animation: fadeIn 0.2s ease-out;
+}
+
+
+.animate-slide-up {
+  animation: slideUp 0.4s ease-out;
+}
+@keyframes tickFlash {
+  0% {
+    opacity: 0;
+    transform: scale(0.4);
+  }
+  20% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  80% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(0.4);
+  }
+}
+
+.tick-flash {
+  animation: tickFlash 0.25s ease-out forwards;
+}
+
+
 
 @layer base {
   :root {
@@ -115,8 +177,7 @@
     --chart-5: 340 75% 55%}
 }
 
-/* 
----break--- */
+
 
 @layer base {
   * {

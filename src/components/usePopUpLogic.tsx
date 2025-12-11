@@ -9,13 +9,43 @@ export function usePopUpLogic(selectedDate?: Date) {
   const [reminder, setReminder] = useState("No reminder");
   const [description, setDescription] = useState("");
   const [inputData, setInputData] = useState("");
+  const [editPopUp, setEditPopUp] = useState(false);
+  const [editTaskId, setEditTaskId] = useState<string | null>(null);
 
   const addTask = useTodoStore((s) => s.addTask);
+  const updateTask = useTodoStore((s) => s.updateTask);
+
   const params = useParams();
   const projectId = Array.isArray(params?.id) ? params.id[0] : params?.id ?? "";
 
   const finalDate = date ?? selectedDate ?? new Date();
   const formattedDate = finalDate.toISOString().split("T")[0];
+
+  
+  const openEditPopup = (task: any) => {
+    setEditTaskId(task.taskId);         
+    setInputData(task.name);
+    setDescription(task.description);
+    setPriority(task.priority);
+    setReminder(task.reminder);
+    setDate(new Date(task.dueDate));
+
+    setEditPopUp(true);
+  };
+
+  
+  const saveEditPopup = () => {
+    if (!editTaskId) return;
+    updateTask(editTaskId, {
+      name: inputData,
+      description,
+      priority,
+      reminder,
+      dueDate: formattedDate,
+    });
+
+    setEditPopUp(false);
+  };
 
   const handleAddTask = () => {
     if (!inputData.trim()) return;
@@ -42,13 +72,19 @@ export function usePopUpLogic(selectedDate?: Date) {
     reminder,
     description,
     inputData,
+    editPopUp,
+    editTaskId,
 
     setDate,
     setPriority,
     setReminder,
     setDescription,
     setInputData,
+    setEditTaskId,
+    setEditPopUp,
 
     handleAddTask,
+    openEditPopup,
+    saveEditPopup,
   };
 }

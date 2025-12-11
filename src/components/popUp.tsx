@@ -23,32 +23,28 @@ import {
 import { useOutsideClick } from "./useOutsideClick";
 import { useProjectStore } from "@/state";
 import { usePopUpLogic } from "./usePopUpLogic";
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
+import TaskDetails from "./TaskDetails";
 interface PopUpProps {
-  selectedDate: Date;
-  handleClose: () => void;
+  selectedDate: Date | null;
   handleTaskInput: () => void;
+  handleClose: () => void;
 }
-export default function PopUp({
-  selectedDate,
-  handleClose,
-  handleTaskInput,
-}: PopUpProps) {
+export default function PopUp({ selectedDate, handleClose }: PopUpProps) {
   const {
     date,
-    inputData,
     description,
     priority,
     reminder,
+    inputData,
     setDate,
-    setInputData,
     setDescription,
     setPriority,
     setReminder,
+    setInputData,
     handleAddTask,
   } = usePopUpLogic(selectedDate);
   const popupRef = useRef<HTMLDivElement>(null);
-
   useOutsideClick(popupRef, handleClose);
   const projects = useProjectStore((s) => s.projects);
   const priorityColors: Record<string, string> = {
@@ -57,40 +53,37 @@ export default function PopUp({
     "Priority 3": "text-blue-600",
     "Priority 4": "text-gray-400",
   };
+   console.log('data for editing')
+  console.log(inputData)
+  console.log(description)
+    console.log(priority)
+  console.log(date)
+
+  
   return (
     <div
       ref={popupRef}
-      className="border rounded-xl p-4 bg-white shadow-lg w-full"
+      className="border rounded-xl p-2 bg-white shadow-[0_6px_30px_rgba(0,0,0,0.25)] w-full max-w-3xl animate-slide-up"
     >
       <input
         placeholder="Task name"
-        className="w-full outline-none text-sm"
+        className="w-full outline-none text-sm bg-transparent"
         value={inputData}
-        onChange={(e) => setInputData(e.target.value)}
+        onChange={(e) =>  setInputData(e.target.value)}
         onKeyDown={(e) => {
           if (e.key === "Enter") {
-            if (handleTaskInput) {
-              handleTaskInput();
-            }
             handleAddTask();
+            handleClose();
           }
         }}
       />
       <textarea
         placeholder="Description"
-        className="w-full text-sm mt-2 outline-none"
+        className="w-full text-sm mt-2 outline-none bg-transparent"
         value={description}
         onChange={(e) => setDescription(e.target.value)}
-        onKeyDown={(e) => {
-          if (e.key === "Enter") {
-           if (handleTaskInput) {
-              handleTaskInput();
-            }
-            handleAddTask();
-          }
-        }}
       />
-      <div className="flex items-center gap-2 mt-2">
+      <div className="flex items-center gap-2 mt-3">
         <Popover>
           <PopoverTrigger asChild>
             <Button variant="outline" className="flex gap-2 text-xs">
@@ -98,7 +91,7 @@ export default function PopUp({
               {date ? format(date, "PPP") : "Date"}
             </Button>
           </PopoverTrigger>
-          <PopoverContent className="p-2">
+          <PopoverContent className="p-1">
             <Calendar
               mode="single"
               selected={date}
@@ -108,11 +101,8 @@ export default function PopUp({
         </Popover>
         <Popover>
           <PopoverTrigger asChild>
-            <Button
-              variant="outline"
-              className="flex gap-2 text-xs items-center"
-            >
-              <Flag size={16} className={priorityColors[priority]} />
+            <Button variant="outline" className="flex gap-2 text-xs">
+              <Flag size={14} className={priorityColors[priority]} />
               {priority}
             </Button>
           </PopoverTrigger>
@@ -135,7 +125,8 @@ export default function PopUp({
         <Popover>
           <PopoverTrigger asChild>
             <Button variant="outline" className="flex gap-2 text-xs">
-              <AlarmClock size={14} /> {reminder}
+              <AlarmClock size={14} />
+              {reminder}
             </Button>
           </PopoverTrigger>
           <PopoverContent>
@@ -155,10 +146,11 @@ export default function PopUp({
           </PopoverContent>
         </Popover>
       </div>
-      <div className="mt-3">
+      <div className="flex justify-between p-2">
         <Select>
-          <SelectTrigger className="w-36">
+          <SelectTrigger className="w-24 bg-slate-100">
             <Inbox size={14} />
+            Inbox
           </SelectTrigger>
           <SelectContent>
             {projects.map((p) => (
@@ -168,21 +160,20 @@ export default function PopUp({
             ))}
           </SelectContent>
         </Select>
-      </div>
-      <div className="flex justify-end gap-2 mt-4 ">
-        <Button variant="outline" onClick={handleTaskInput}>
-          Cancel
-        </Button>
-
-        <Button
-          onClick={() => {
-            handleTaskInput();
-            handleAddTask();
-          }}
-          className="bg-red-500 text-white"
-        >
-          Add Task
-        </Button>
+        <div className="flex justify-end gap-2 mt-2">
+          <button onClick={handleClose} className="border px-3 py-1 rounded">
+            Cancel
+          </button>
+          <button
+            onClick={() => {
+              handleAddTask();
+              handleClose();
+            }}
+            className="bg-red-500 text-white px-3 py-1 rounded"
+          >
+            save
+          </button>
+        </div>
       </div>
     </div>
   );

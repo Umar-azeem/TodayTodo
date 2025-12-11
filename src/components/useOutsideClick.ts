@@ -5,21 +5,22 @@ export function useOutsideClick(ref, callback) {
     function handleClick(event) {
       const popup = ref.current;
 
-      const ignoreClasses = [
-        "popover-content",
-        "select-content",
-        "cmdk-root",
-        "cmdk-popover", 
+      // elements that should NOT trigger close
+      const ignoreSelectors = [
+        "[data-radix-popover-content-wrapper]",
+        "[data-radix-popover-content]",
+        ".popover-content",
+        ".cmdk-root",
+        ".cmdk-popover",
+        ".select-content",
       ];
 
-      if (
-        ignoreClasses.some(cls =>
-          event.target.closest(`.${cls}`)
-        )
-      ) {
+      // click inside popover → ignore
+      if (ignoreSelectors.some(sel => event.target.closest(sel))) {
         return;
       }
 
+      // click outside popup → close
       if (popup && !popup.contains(event.target)) {
         callback();
       }

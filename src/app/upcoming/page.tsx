@@ -130,7 +130,6 @@ const Upcoming = () => {
             const dateInfo = formatDate(dateObj);
             const label = getLabel(dateObj);
 
-            // ⭐ detect if this section is visible
             const { ref } = useInView({
               threshold: 0.2,
               onChange: (inView) => {

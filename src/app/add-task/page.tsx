@@ -1,13 +1,12 @@
 "use client";
 
 import PopUp from "@/components/popUp";
+import { handleClientScriptLoad } from "next/script";
 import { useState } from "react";
 
 export default function Page() {
-  
-  const handleTaskInput = () => {
-    console.log("Task added");
-  };
+  const [open, setOpen] = useState(true);
+
 
   return (
     <div className="flex flex-col items-center justify-center h-full text-center p-4">
@@ -18,11 +17,19 @@ export default function Page() {
         organize when you’re ready.
       </p>
 
-      <div className="relative flex justify-center items-center   w-full max-w-3xl">
-        <PopUp handleTaskInput={handleTaskInput}  />
+      <div className="relative flex justify-center items-center w-full bg-white shadow-lg max-w-3xl">
+        {open && (
+          <PopUp
+            selectedDate={null}
+            handleClose={() => setOpen(false)}
+          />
+        )}
       </div>
 
-      <button className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded flex items-center gap-2">
+      <button
+        className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded flex items-center gap-2"
+        onClick={() => setOpen(true)}
+      >
         <span className="text-xl font-bold">+</span> Add task
       </button>
     </div>

@@ -24,7 +24,7 @@ export default function ProjectPage() {
 
   const projects = useProjectStore((s) => s.projects);
   const tasks = useTodoStore((state) => state.tasks);
- const deleteTask = useTodoStore((state) => state.deleteTask);
+  const deleteTask = useTodoStore((state) => state.deleteTask);
   const completeTask = useTodoStore((state) => state.completeTask);
   const projectTasks = tasks.filter((task) => task.projectId === projectId);
 
@@ -45,12 +45,12 @@ export default function ProjectPage() {
   if (!project) {
     return <div className="p-4 text-red-500">Project not found.</div>;
   }
-
   return (
     <div className="flex w-full justify-center my-8">
-      <p className="text-xl font-semibold text-start mb-6">{project.name}</p>
-
-      <div className="flex flex-row w-full max-w-3xl my-10 ">
+      <div className="flex flex-col w-full max-w-3xl">
+         <p className="text-xl font-semibold text-start mb-6">
+              {project.name}
+            </p>
         {todayTasks.length === 0 ? (
           <div className="text-center py-8 w-full">
             <p className="text-muted-foreground mt-3">
@@ -65,7 +65,7 @@ export default function ProjectPage() {
                 className="flex border-b border-gray-200 items-center justify-between p-3 bg-card rounded-md"
               >
                 <div className="flex items-center gap-3">
-                 <CircleCheck
+                  <CircleCheck
                     onClick={() => completeTask(task.taskId)}
                     className={`cursor-pointer ${
                       task.completed ? "text-green-500" : ""
@@ -89,12 +89,10 @@ export default function ProjectPage() {
                     )}
                   </div>
                 </div>
-
                 <div className="flex items-center gap-1">
                   <button className="p-1 border rounded-md">
                     <Edit size={16} />
                   </button>
-
                   <DropdownMenu>
                     <DropdownMenuTrigger className="p-1 border rounded-md">
                       <CalendarIcon size={16} />
@@ -103,23 +101,25 @@ export default function ProjectPage() {
                       <Calendar mode="single" />
                     </DropdownMenuContent>
                   </DropdownMenu>
-
                   <button className="p-1 border rounded-md">
                     <Flag size={16} />
                   </button>
-
                   <DropdownMenu>
                     <DropdownMenuTrigger className="p-1 border rounded-md">
                       <Ellipsis size={16} />
                     </DropdownMenuTrigger>
-
                     <DropdownMenuContent>
                       <DropdownMenuItem>
                         <button className="p-2 flex gap-2 w-full">
-                          <Trash2 onClick={()=> {deleteTask(task.taskId)}} size={16} /> Delete
+                          <Trash2
+                            onClick={() => {
+                              deleteTask(task.taskId);
+                            }}
+                            size={16}
+                          />{" "}
+                          Delete
                         </button>
                       </DropdownMenuItem>
-
                       <DropdownMenuItem>
                         <button className="p-2 flex gap-2 w-full">
                           <Edit size={16} /> Edit
