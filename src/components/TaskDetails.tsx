@@ -4,6 +4,7 @@ import { Task } from "@/state";
 interface TaskDetailsProps {
   handleShowTask: () => void;
   task: Task;
+  // selectedTaskId: string; 
 }
 
 import { useTodoStore } from "@/state";
@@ -59,7 +60,7 @@ export default function TaskDetails({
           <p className="ml-7 mt-2 text-gray-600">{task.description}</p>
         </div>
 
-        <div className="w-80 p-6 text-sm bg-white">
+        <div className="w-80 p-6 text-sm text-start bg-white">
           <div className="mb-4">
             <p className="text-gray-500 mb-1">Project</p>
             <div className="flex items-center gap-2">

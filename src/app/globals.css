@@ -176,6 +176,15 @@
 
     --chart-5: 340 75% 55%}
 }
+.tick-flash {
+  animation: tick-flash 0.3s ease-in-out;
+}
+
+@keyframes tick-flash {
+  0% { transform: scale(0); opacity: 0; }
+  50% { transform: scale(1.2); opacity: 1; }
+  100% { transform: scale(1); opacity: 1; }
+}
 
 
 

@@ -1,12 +1,13 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 import { useState } from "react";
 import { useTodoStore } from "@/state";
 import { useParams } from "next/navigation";
 
-export function usePopUpLogic(selectedDate?: Date) {
-  const [date, setDate] = useState<Date | undefined>(selectedDate);
+export function usePopUpLogic(selectedDate?: Date, handleTaskOpen?: () => void) {
+  const [date, setDate] = useState<Date | undefined>();
   const [priority, setPriority] = useState("Priority 2");
-  const [reminder, setReminder] = useState("No reminder");
+  const [reminder, setReminder] = useState<string>("No reminder");
   const [description, setDescription] = useState("");
   const [inputData, setInputData] = useState("");
   const [editPopUp, setEditPopUp] = useState(false);
@@ -20,32 +21,44 @@ export function usePopUpLogic(selectedDate?: Date) {
 
   const finalDate = date ?? selectedDate ?? new Date();
   const formattedDate = finalDate.toISOString().split("T")[0];
-
-  
+ 
   const openEditPopup = (task: any) => {
-    setEditTaskId(task.taskId);         
+    console.log(task);
+    setEditTaskId(task.taskId);
     setInputData(task.name);
     setDescription(task.description);
     setPriority(task.priority);
     setReminder(task.reminder);
     setDate(new Date(task.dueDate));
-
     setEditPopUp(true);
   };
 
-  
-  const saveEditPopup = () => {
-    if (!editTaskId) return;
-    updateTask(editTaskId, {
-      name: inputData,
-      description,
-      priority,
-      reminder,
-      dueDate: formattedDate,
-    });
+  //  const saveEditPopup = () => {
+  //   console.log("id",editTaskId)
+  //   if (!editTaskId) return;
 
-    setEditPopUp(false);
-  };
+  //   updateTask(editTaskId, {
+  //     name: inputData,
+  //     description,
+  //     priority,
+  //     reminder,
+  //     dueDate: formattedDate,
+  //   });
+  //   setEditPopUp(false);
+  // };
+  // const saveEditPopup = () => {
+  //   if (!editTaskId) return;
+
+  //   updateTask(editTaskId, {
+  //     name: inputData,
+  //     description,
+  //     priority,
+  //     reminder,
+  //     dueDate: formattedDate,
+  //   });
+
+  //   setEditPopUp(false);
+  // };
 
   const handleAddTask = () => {
     if (!inputData.trim()) return;
@@ -61,7 +74,7 @@ export function usePopUpLogic(selectedDate?: Date) {
       createdAt: new Date().toISOString(),
       projectId,
     });
-
+    console.log("add    Task", addTask);
     setInputData("");
     setDescription("");
   };
@@ -82,9 +95,10 @@ export function usePopUpLogic(selectedDate?: Date) {
     setInputData,
     setEditTaskId,
     setEditPopUp,
-
+    updateTask,
     handleAddTask,
     openEditPopup,
-    saveEditPopup,
+    handleTaskOpen,
+    // saveEditPopup,
   };
 }

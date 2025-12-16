@@ -20,17 +20,25 @@ import {
   SelectContent,
   SelectItem,
 } from "@/components/ui/select";
-import { useOutsideClick } from "./useOutsideClick";
 import { useProjectStore } from "@/state";
 import { usePopUpLogic } from "./usePopUpLogic";
-import { useEffect, useRef } from "react";
-import TaskDetails from "./TaskDetails";
+import { useEffect } from "react";
 interface PopUpProps {
-  selectedDate: Date | null;
-  handleTaskInput: () => void;
-  handleClose: () => void;
+  selectedDate?: Date;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  editTodoData?: any;
+  handleClose?: () => void;
+  handleClosePopup?: () => void;
+  handleTaskOpen?: () => void;
 }
-export default function PopUp({ selectedDate, handleClose }: PopUpProps) {
+
+export default function PopUp({
+  selectedDate,
+  handleClose,
+  editTodoData,
+  handleTaskOpen,
+  handleClosePopup,
+}: PopUpProps) {
   const {
     date,
     description,
@@ -43,9 +51,9 @@ export default function PopUp({ selectedDate, handleClose }: PopUpProps) {
     setReminder,
     setInputData,
     handleAddTask,
-  } = usePopUpLogic(selectedDate);
-  const popupRef = useRef<HTMLDivElement>(null);
-  useOutsideClick(popupRef, handleClose);
+    updateTask,
+  } = usePopUpLogic(selectedDate, handleTaskOpen);
+
   const projects = useProjectStore((s) => s.projects);
   const priorityColors: Record<string, string> = {
     "Priority 1": "text-red-600",
@@ -53,27 +61,44 @@ export default function PopUp({ selectedDate, handleClose }: PopUpProps) {
     "Priority 3": "text-blue-600",
     "Priority 4": "text-gray-400",
   };
-   console.log('data for editing')
-  console.log(inputData)
-  console.log(description)
-    console.log(priority)
-  console.log(date)
-
-  
+  console.log("data for editing");
+  console.log(editTodoData);
+  useEffect(() => {
+    if (editTodoData) {
+      setInputData(editTodoData.name);
+      setDescription(editTodoData.description);
+      setPriority(editTodoData.priority);
+      setReminder(editTodoData.reminder);
+      setDate(new Date(editTodoData.dueDate));
+    }
+  }, [editTodoData, setInputData, setDate, setPriority, setReminder,setDescription]);
+  const createOrEdit = () => {
+    if (editTodoData) {
+      updateTask(editTodoData?.taskId, {
+        name: inputData,
+        description,
+        priority,
+        reminder,
+        dueDate: date ? date.toISOString() : undefined,
+      });
+      console.log("updateTask task", updateTask);
+    } else {
+      handleAddTask();
+      console.log("add task eidt", handleAddTask);
+    }
+  };
   return (
-    <div
-      ref={popupRef}
-      className="border rounded-xl p-2 bg-white shadow-[0_6px_30px_rgba(0,0,0,0.25)] w-full max-w-3xl animate-slide-up"
-    >
+    <div className="border rounded-xl p-2 bg-white shadow-[0_6px_30px_rgba(0,0,0,0.25)] w-full max-w-3xl ">
       <input
         placeholder="Task name"
         className="w-full outline-none text-sm bg-transparent"
         value={inputData}
-        onChange={(e) =>  setInputData(e.target.value)}
+        onChange={(e) => setInputData(e.target.value)}
         onKeyDown={(e) => {
           if (e.key === "Enter") {
-            handleAddTask();
-            handleClose();
+            createOrEdit();
+            handleClose?.();
+            handleClosePopup?.();
           }
         }}
       />
@@ -92,11 +117,13 @@ export default function PopUp({ selectedDate, handleClose }: PopUpProps) {
             </Button>
           </PopoverTrigger>
           <PopoverContent className="p-1">
-            <Calendar
-              mode="single"
-              selected={date}
-              onSelect={(d) => d && setDate(d)}
-            />
+            <div className="absolute z-20">
+              <Calendar
+                mode="single"
+                selected={date}
+                onSelect={(d) => d && setDate(d)}
+              />
+            </div>
           </PopoverContent>
         </Popover>
         <Popover>
@@ -132,21 +159,33 @@ export default function PopUp({ selectedDate, handleClose }: PopUpProps) {
           <PopoverContent>
             <Command>
               <CommandList>
-                <CommandGroup>
-                  {["No reminder", "Today 6pm", "Tomorrow 9am", "Custom"].map(
-                    (r) => (
-                      <CommandItem key={r} onSelect={() => setReminder(r)}>
-                        {r}
-                      </CommandItem>
-                    )
-                  )}
-                </CommandGroup>
+                 <CommandGroup>
+          {["No reminder", "Today 6pm", "Tomorrow 9am", "Custom"].map((r) => (
+            <CommandItem
+              key={r}
+              onSelect={() => {
+                setReminder(r);
+                if (editTodoData) {
+                  updateTask(editTodoData.taskId, {
+                    name: inputData,
+                    description,
+                    priority,
+                    reminder: r,
+                    dueDate: date ? date.toISOString() : undefined,
+                  });
+                }
+              }}
+            >
+              {r}
+            </CommandItem>
+          ))}
+        </CommandGroup>
               </CommandList>
             </Command>
           </PopoverContent>
         </Popover>
       </div>
-      <div className="flex justify-between p-2">
+      <div className="flex justify-between p-3">
         <Select>
           <SelectTrigger className="w-24 bg-slate-100">
             <Inbox size={14} />
@@ -161,15 +200,16 @@ export default function PopUp({ selectedDate, handleClose }: PopUpProps) {
           </SelectContent>
         </Select>
         <div className="flex justify-end gap-2 mt-2">
-          <button onClick={handleClose} className="border px-3 py-1 rounded">
+          <button onClick={handleClose} className="border px-3 py-0.5 rounded">
             Cancel
           </button>
           <button
             onClick={() => {
-              handleAddTask();
-              handleClose();
+              createOrEdit();
+              handleClose?.();
+              handleClosePopup?.();
             }}
-            className="bg-red-500 text-white px-3 py-1 rounded"
+            className="bg-red-500 text-white px-3 py-0.5 rounded-sm"
           >
             save
           </button>

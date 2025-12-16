@@ -1,32 +1,30 @@
-import { useEffect } from "react";
+// import { useEffect } from "react";
 
-export function useOutsideClick(ref, callback) {
-  useEffect(() => {
-    function handleClick(event) {
-      const popup = ref.current;
+// export function useOutsideClick(ref, callback) {
+//   useEffect(() => {
+//     function handleClick(event) {
+//       const popup = ref.current;
+//       if (!popup) return;
 
-      // elements that should NOT trigger close
-      const ignoreSelectors = [
-        "[data-radix-popover-content-wrapper]",
-        "[data-radix-popover-content]",
-        ".popover-content",
-        ".cmdk-root",
-        ".cmdk-popover",
-        ".select-content",
-      ];
+//       const target = event.target as HTMLElement;
 
-      // click inside popover → ignore
-      if (ignoreSelectors.some(sel => event.target.closest(sel))) {
-        return;
-      }
+//       // 🔴 Radix UI portals ko ignore karo
+//       if (
+//         target.closest("[data-radix-portal]") ||
+//         target.closest("[data-radix-popover-content]") ||
+//         target.closest("[data-radix-select-content]") ||
+//         target.closest("[cmdk-root]")
+//       ) {
+//         return; // ❌ popup close mat karo
+//       }
 
-      // click outside popup → close
-      if (popup && !popup.contains(event.target)) {
-        callback();
-      }
-    }
+//       // ✅ real outside click → close popup
+//       if (!popup.contains(target)) {
+//         callback();
+//       }
+//     }
 
-    document.addEventListener("mousedown", handleClick);
-    return () => document.removeEventListener("mousedown", handleClick);
-  }, [ref, callback]);
-}
+//     document.addEventListener("mousedown", handleClick);
+//     return () => document.removeEventListener("mousedown", handleClick);
+//   }, [ref, callback]);
+// }

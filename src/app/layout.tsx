@@ -5,10 +5,14 @@ import { motion, AnimatePresence } from "framer-motion";
 import Sidebar from "@/components/sidebar";
 import "./globals.css";
 import { PanelRightClose } from "lucide-react";
-
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+interface LayoutProps {
+  children: React.ReactNode;
+}
+export default function RootLayout({ children }:LayoutProps) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [isMobile, setIsMobile] = useState(false);
+
   useEffect(() => {
     const handleResize = () => {
       const mobile = window.innerWidth < 768;
@@ -24,19 +28,26 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 
   return (
     <html lang="en">
-      <body className="min-h-screen w-full flex flex-row relative">
+      <body className="max-h-screen w-full flex flex-row relative">
 
-        <Sidebar
-          isOpen={isSidebarOpen}
-          closeSidebar={() => setIsSidebarOpen(false)}
-        />
+        <motion.div
+          initial={false}
+          animate={{ width: isSidebarOpen ? 240 : 0 }}
+          transition={{ duration: 0.3 }}
+          className=""
+        >
+          <Sidebar
+            isOpen={isSidebarOpen}
+            closeSidebar={() => setIsSidebarOpen(false)}
+          />
+        </motion.div>
 
         <AnimatePresence>
           {!isSidebarOpen && (
             <motion.button
               key="toggle-btn"
               onClick={toggleSidebar}
-              className="fixed top-0.5 z-50 p-2  rounded-full"
+              className="fixed top-2 left-2 z-50 p-0.5  bg-white "
               initial={{ x: -50, opacity: 0 }}
               animate={{ x: 5, opacity: 1 }}
               exit={{ x: -50, opacity: 0 }}
@@ -47,7 +58,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           )}
         </AnimatePresence>
 
-        <main className="w-full">{children}</main>
+        <main className="flex-1 w-full p-6 md:p-0.5">{children}</main>
       </body>
     </html>
   );

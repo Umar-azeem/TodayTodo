@@ -14,7 +14,8 @@ export interface ProjectStore {
   editProject: (id: string, newName: string) => void;
   moveUp: (id: string) => void;
   moveDown: (id: string) => void;
-  toggleFavorite: (id: string) => void; 
+  toggleFavorite: (id: string) => void;
+  duplicateProject: (id: string) => void;
 }
 
 const moveItem = <T>(list: T[], from: number, to: number): T[] => {
@@ -28,7 +29,7 @@ export const useProjectStore = create<ProjectStore>()(
   persist(
     (set) => ({
       projects: [],
-      favorites: [], 
+      favorites: [],
       addProject: (p) =>
         set((state) => ({
           projects: [...state.projects, p],
@@ -59,31 +60,28 @@ export const useProjectStore = create<ProjectStore>()(
       toggleFavorite: (id: string) =>
         set((state) => ({
           favorites: state.favorites.includes(id)
-            ? state.favorites.filter((favId) => favId !== id) // remove
-            : [...state.favorites, id], // add
+            ? state.favorites.filter((favId) => favId !== id)
+            : [...state.favorites, id],
         })),
-        duplicateProject: (id: string) =>
-  set((state) => {
-    const projectToCopy = state.projects.find((p) => p.id === id);
-    if (!projectToCopy) return {};
+      duplicateProject: (id: string) =>
+        set((state) => {
+          const projectToCopy = state.projects.find((p) => p.id === id);
+          if (!projectToCopy) return {};
 
-    const newProject = {
-      id: crypto.randomUUID(),
-      name: projectToCopy.name + " (Copy)",
-    };
+          const newProject = {
+            id: crypto.randomUUID(),
+            name: projectToCopy.name + " (Copy)",
+          };
 
-    return {
-      projects: [...state.projects, newProject],
-    };
-  }),
+          return {
+            projects: [...state.projects, newProject],
+          };
+        }),
     }),
     { name: "project-storage" }
   )
 );
 
-// -----------------------
-// Task store remains the same
-// -----------------------
 export interface Task {
   taskId: string;
   name: string;
@@ -103,27 +101,33 @@ interface TodoStore {
   deleteTask: (id: string) => void;
   completeTask: (id: string) => void;
 }
-
 export const useTodoStore = create<TodoStore>()(
   persist(
     (set) => ({
       tasks: [],
-      addTask: (t) =>
-        set((state) => ({ tasks: [...state.tasks, t] })),
+      addTask: (t) => set((state) => ({ tasks: [...state.tasks, t] })),
       deleteTask: (id: string) =>
-        set((state) => ({ tasks: state.tasks.filter((task) => task.taskId !== id) })),
+        set((state) => ({
+          tasks: state.tasks.filter((task) => task.taskId !== id),
+        })),
       completeTask: (editTaskId: string) =>
         set((state) => ({
           tasks: state.tasks.map((task) =>
-            task.taskId === editTaskId ? { ...task, completed: !task.completed } : task
+            task.taskId === editTaskId
+              ? { ...task, completed: !task.completed }
+              : task
           ),
         })),
       updateTask: (editTaskId, updated) =>
-        set((state) => ({
-          tasks: state.tasks.map((task) =>
-            task.taskId === editTaskId ? { ...task, ...updated } : task
-          ),
-        })),
+        set((state) => {
+          console.log("Update called for ID:", editTaskId);
+          console.log("Updated data:", updated);
+          return {
+            tasks: state.tasks.map((task) =>
+              task.taskId === editTaskId ? { ...task, ...updated } : task
+            ),
+          };
+        }),
     }),
     { name: "task-storage" }
   )

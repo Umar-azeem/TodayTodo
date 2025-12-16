@@ -1,12 +1,10 @@
 "use client";
 
 import PopUp from "@/components/popUp";
-import { handleClientScriptLoad } from "next/script";
 import { useState } from "react";
 
 export default function Page() {
   const [open, setOpen] = useState(true);
-
 
   return (
     <div className="flex flex-col items-center justify-center h-full text-center p-4">
@@ -20,7 +18,7 @@ export default function Page() {
       <div className="relative flex justify-center items-center w-full bg-white shadow-lg max-w-3xl">
         {open && (
           <PopUp
-            selectedDate={null}
+            // selectedDate={selectedDate || undefined}
             handleClose={() => setOpen(false)}
           />
         )}
