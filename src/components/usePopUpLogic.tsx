@@ -19,9 +19,20 @@ export function usePopUpLogic(selectedDate?: Date, handleTaskOpen?: () => void) 
   const params = useParams();
   const projectId = Array.isArray(params?.id) ? params.id[0] : params?.id ?? "";
 
-  const finalDate = date ?? selectedDate ?? new Date();
-  const formattedDate = finalDate.toISOString().split("T")[0];
- 
+  // const finalDate =
+  // date instanceof Date
+  //   ? date
+  //   : selectedDate instanceof Date
+  //   ? selectedDate
+  //   : new Date();
+
+const finalDate = (value?: string | Date) => {
+  const d = new Date(value ?? new Date());
+  return isNaN(d.getTime()) ? "" : d.toISOString().split("T")[0];
+};
+
+const formattedDate = finalDate(date ?? selectedDate);
+
   const openEditPopup = (task: any) => {
     console.log(task);
     setEditTaskId(task.taskId);

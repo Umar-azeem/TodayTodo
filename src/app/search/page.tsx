@@ -1,18 +1,9 @@
-// import CommandSearch from "@/components/CommandSearch";
- import CommandSearch from "@/components/CommandSearch";
-import React from "react";
+import React from 'react'
 
-function Page() {
-
+function page() {
   return (
-    <>
-      <div className="flex flex-col items-center justify-center h-full text-center p-4">
-        <div className="relative flex justify-center items-center w-full  shadow-lg max-w-3xl">
-           <CommandSearch />
-        </div>
-      </div>
-    </>
-  );
+    <div>page</div>
+  )
 }
 
-export default Page;
+export default page

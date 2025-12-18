@@ -1,11 +1,10 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-
 export interface Project {
   id: string;
   name: string;
+    archived?: boolean;
 }
-
 export interface ProjectStore {
   projects: Project[];
   favorites: string[];
@@ -17,14 +16,12 @@ export interface ProjectStore {
   toggleFavorite: (id: string) => void;
   duplicateProject: (id: string) => void;
 }
-
 const moveItem = <T>(list: T[], from: number, to: number): T[] => {
   const updated = [...list];
   const item = updated.splice(from, 1)[0];
   updated.splice(to, 0, item);
   return updated;
 };
-
 export const useProjectStore = create<ProjectStore>()(
   persist(
     (set) => ({
@@ -81,7 +78,6 @@ export const useProjectStore = create<ProjectStore>()(
     { name: "project-storage" }
   )
 );
-
 export interface Task {
   taskId: string;
   name: string;
@@ -93,7 +89,6 @@ export interface Task {
   createdAt: string;
   projectId: string;
 }
-
 interface TodoStore {
   tasks: Task[];
   addTask: (t: Task) => void;

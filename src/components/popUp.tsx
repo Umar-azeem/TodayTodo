@@ -71,7 +71,14 @@ export default function PopUp({
       setReminder(editTodoData.reminder);
       setDate(new Date(editTodoData.dueDate));
     }
-  }, [editTodoData, setInputData, setDate, setPriority, setReminder,setDescription]);
+  }, [
+    editTodoData,
+    setInputData,
+    setDate,
+    setPriority,
+    setReminder,
+    setDescription,
+  ]);
   const createOrEdit = () => {
     if (editTodoData) {
       updateTask(editTodoData?.taskId, {
@@ -87,6 +94,11 @@ export default function PopUp({
       console.log("add task eidt", handleAddTask);
     }
   };
+  const safeFormatDate = (value?: Date | string) => {
+    const d = new Date(value ?? "");
+    return isNaN(d.getTime()) ? "Date" : format(d, "PPP");
+  };
+
   return (
     <div className="border rounded-xl p-2 bg-white shadow-[0_6px_30px_rgba(0,0,0,0.25)] w-full max-w-3xl ">
       <input
@@ -113,7 +125,7 @@ export default function PopUp({
           <PopoverTrigger asChild>
             <Button variant="outline" className="flex gap-2 text-xs">
               <CalendarIcon size={14} />
-              {date ? format(date, "PPP") : "Date"}
+              {safeFormatDate(date)}
             </Button>
           </PopoverTrigger>
           <PopoverContent className="p-1">
@@ -159,27 +171,29 @@ export default function PopUp({
           <PopoverContent>
             <Command>
               <CommandList>
-                 <CommandGroup>
-          {["No reminder", "Today 6pm", "Tomorrow 9am", "Custom"].map((r) => (
-            <CommandItem
-              key={r}
-              onSelect={() => {
-                setReminder(r);
-                if (editTodoData) {
-                  updateTask(editTodoData.taskId, {
-                    name: inputData,
-                    description,
-                    priority,
-                    reminder: r,
-                    dueDate: date ? date.toISOString() : undefined,
-                  });
-                }
-              }}
-            >
-              {r}
-            </CommandItem>
-          ))}
-        </CommandGroup>
+                <CommandGroup>
+                  {["No reminder", "Today 6pm", "Tomorrow 9am", "Custom"].map(
+                    (r) => (
+                      <CommandItem
+                        key={r}
+                        onSelect={() => {
+                          setReminder(r);
+                          if (editTodoData) {
+                            updateTask(editTodoData.taskId, {
+                              name: inputData,
+                              description,
+                              priority,
+                              reminder: r,
+                              dueDate: date ? date.toISOString() : undefined,
+                            });
+                          }
+                        }}
+                      >
+                        {r}
+                      </CommandItem>
+                    )
+                  )}
+                </CommandGroup>
               </CommandList>
             </Command>
           </PopoverContent>

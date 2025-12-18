@@ -1,16 +1,23 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useTodoStore } from "@/state";
 import {
   Clock,
   CalendarDays,
   CalendarRange,
   Inbox,
+  X,
 } from "lucide-react";
 import TaskDetails from "./TaskDetails";
 import { usePathname, useRouter } from "next/navigation";
 
+/* ================= TYPES ================= */
+type CommandSearchProps = {
+  onClose: () => void;
+};
+
+/* ================= HOOK ================= */
 const useCommandSearch = () => {
   const tasks = useTodoStore((state) => state.tasks);
   const [query, setQuery] = useState("");
@@ -35,9 +42,9 @@ const useCommandSearch = () => {
   };
 };
 
-/* -------------------- MAIN COMPONENT -------------------- */
-const CommandSearch = () => {
-  const router = useRouter(); // ✅ FIX
+/* ================= MAIN ================= */
+const CommandSearch = ({ onClose }: CommandSearchProps) => {
+  const router = useRouter();
   const pathname = usePathname();
 
   const {
@@ -51,17 +58,47 @@ const CommandSearch = () => {
 
   const [showTask, setShowTask] = useState(false);
 
+  /* ===== RECENT SEARCHES ===== */
+  const [recentSearches, setRecentSearches] = useState<string[]>([]);
+
+  // load from localStorage
+  useEffect(() => {
+    const saved = localStorage.getItem("recent-searches");
+    if (saved) setRecentSearches(JSON.parse(saved));
+  }, []);
+
+  // save helper
+  const addRecentSearch = (value: string) => {
+    if (!value.trim()) return;
+
+    const updated = [
+      value,
+      ...recentSearches.filter((v) => v !== value),
+    ].slice(0, 4);
+
+    setRecentSearches(updated);
+    localStorage.setItem("recent-searches", JSON.stringify(updated));
+  };
+
   const selectedTask = tasks.find((t) => t.taskId === selectedTaskId);
 
   return (
     <>
-      {/* Command Palette */}
-      <div className="fixed inset-0 z-50 backdrop-blur-sm flex justify-center items-center p-4">
-        <div className="bg-white w-full max-w-2xl rounded-xl shadow-[0_30px_80px_-20px_rgba(0,0,0,0.55)] overflow-hidden">
-          {/* Search input */}
-          <div className="p-4">
+      {/* ================= SEARCH MODAL ================= */}
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/20 backdrop-blur-sm">
+        <div className="bg-white w-full max-w-2xl rounded-xl shadow-xl overflow-hidden relative">
+
+          {/* CLOSE */}
+          <div className="p-2 flex justify-end">
+            <button onClick={onClose}>
+              <X size={18} />
+            </button>
+          </div>
+
+          {/* INPUT */}
+          <div className="p-2 border-b">
             <input
-              type="text"
+              autoFocus
               placeholder="Search tasks..."
               value={query}
               onChange={(e) => setQuery(e.target.value)}
@@ -69,70 +106,77 @@ const CommandSearch = () => {
             />
           </div>
 
-          {/* Results */}
-          <div className="max-h-[400px] overflow-y-auto px-4 py-3 text-sm">
+          {/* CONTENT */}
+          <div className="max-h-[400px] overflow-y-auto p-4 text-sm">
+
+            {/* ===== EMPTY SEARCH ===== */}
             {!query && (
               <>
-                <Section title="Recent searches">
-                  <Item icon={<Clock size={16} />} label="umar" />
-                </Section>
+                {recentSearches.length > 0 && (
+                  <Section title="Recent searches">
+                    {recentSearches.map((item) => (
+                      <Item
+                        key={item}
+                        icon={<Clock size={16} />}
+                        label={item}
+                        onClick={() => setQuery(item)}
+                      />
+                    ))}
+                  </Section>
+                )}
 
-                <Section title="Recently viewed">
+                <Section title="Navigation">
                   <Item
                     icon={<CalendarDays size={16} />}
                     label="Today"
                     active={pathname === "/today"}
-                    onClick={() => router.push("/today")}
+                    onClick={() => {
+                      addRecentSearch("Today");
+                      router.push("/today");
+                      onClose();
+                    }}
                   />
-
                   <Item
                     icon={<CalendarRange size={16} />}
                     label="Upcoming"
                     active={pathname === "/upcoming"}
-                    onClick={() => router.push("/upcoming")}
+                    onClick={() => {
+                      addRecentSearch("Upcoming");
+                      router.push("/upcoming");
+                      onClose();
+                    }}
                   />
-
                   <Item
                     icon={<Inbox size={16} />}
                     label="Completed"
                     active={pathname === "/complete"}
-                    onClick={() => router.push("/complete")}
-                  />
-                </Section>
-
-                <Section title="Navigation">
-                  <Item
-                    label="Go to Today"
-                    shortcut="G T"
-                    onClick={() => router.push("/today")}
-                  />
-                  <Item
-                    label="Go to Upcoming"
-                    shortcut="G U"
-                    onClick={() => router.push("/upcoming")}
-                  />
-                  <Item
-                    label="Go to Completed"
-                    shortcut="G C"
-                    onClick={() => router.push("/complete")}
+                    onClick={() => {
+                      addRecentSearch("Completed");
+                      router.push("/complete");
+                      onClose();
+                    }}
                   />
                 </Section>
               </>
             )}
 
+            {/* ===== SEARCH RESULTS ===== */}
             {query && (
               <>
                 {filteredTasks.length === 0 ? (
-                  <p className="text-gray-400 py-6">No results found</p>
+                  <p className="text-gray-400 py-6 text-center">
+                    No results found
+                  </p>
                 ) : (
                   filteredTasks.map((task) => (
                     <div
                       key={task.taskId}
                       onClick={() => {
+                        addRecentSearch(query);
                         setSelectedTaskId(task.taskId);
                         setShowTask(true);
                       }}
-                      className="p-2 flex justify-start rounded-md hover:bg-gray-100 cursor-pointer"
+                      className="p-2 rounded-md hover:bg-gray-100 cursor-pointer"
                     >
                       {task.name}
                     </div>
@@ -144,19 +188,21 @@ const CommandSearch = () => {
         </div>
       </div>
 
+      {/* ================= TASK DETAILS ================= */}
       {showTask && selectedTask && (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/20 backdrop-blur-sm">
-          <div className="relative w-full max-w-3xl p-6 rounded-lg shadow-lg bg-white">
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/30 backdrop-blur-sm">
+          <div className="bg-white w-full max-w-3xl p-6 rounded-xl relative">
+            <button
+              onClick={() => setShowTask(false)}
+              className="absolute top-3 right-3"
+            >
+              <X size={18} />
+            </button>
+
             <TaskDetails
               task={selectedTask}
               handleShowTask={() => setShowTask(false)}
             />
-            <button
-              onClick={() => setShowTask(false)}
-              className="absolute top-3 right-3 text-gray-600 hover:text-gray-900"
-            >
-              ✕
-            </button>
           </div>
         </div>
       )}
@@ -166,6 +212,7 @@ const CommandSearch = () => {
 
 export default CommandSearch;
 
+/* ================= HELPERS ================= */
 
 const Section = ({
   title,
@@ -183,26 +230,21 @@ const Section = ({
 const Item = ({
   icon,
   label,
-  shortcut,
   onClick,
   active,
 }: {
   icon?: React.ReactNode;
   label: string;
-  shortcut?: string;
   onClick?: () => void;
   active?: boolean;
 }) => (
   <div
     onClick={onClick}
-    className={`flex justify-between items-center p-2 rounded-md cursor-pointer
+    className={`flex items-center gap-2 p-2 rounded-md cursor-pointer
       ${active ? "bg-red-50 text-red-600" : "hover:bg-gray-100"}
     `}
   >
-    <div className="flex items-center gap-2">
-      {icon}
-      <span>{label}</span>
-    </div>
-    {shortcut && <span className="text-xs text-gray-400">{shortcut}</span>}
+    {icon}
+    <span>{label}</span>
   </div>
 );

@@ -1,12 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 import { useTodoStore } from "@/state";
-import {
-  Calendar as CalendarIcon,
-  Edit,
-  Ellipsis,
-  Trash2,
-} from "lucide-react";
+import { Calendar as CalendarIcon, Edit, Ellipsis, Plus, Trash2 } from "lucide-react";
 import { Calendar } from "@/components/ui/calendar";
 import {
   DropdownMenu,
@@ -18,22 +13,17 @@ import { useState } from "react";
 import TaskDetails from "@/components/TaskDetails";
 import PopUp from "@/components/popUp";
 import { usePopUpLogic } from "@/components/usePopUpLogic";
+import Image from "next/image";
 
 const Today = () => {
-  const {
-    editPopUp,
-    setEditPopUp,
-    setEditTaskId,
-    
-    
-  } = usePopUpLogic();
+  const { editPopUp, setEditPopUp, setEditTaskId } = usePopUpLogic();
   const tasks = useTodoStore((state) => state.tasks);
   const deleteTask = useTodoStore((state) => state.deleteTask);
   const updateTask = useTodoStore((state) => state.updateTask);
   const completeTask = useTodoStore((state) => state.completeTask);
   const [flashTick, setFlashTick] = useState<string | null>(null);
   const [showTask, setShowTask] = useState(false);
-const [isTicking, setIsTicking] = useState<string | number | null>(null);
+  const [isTicking, setIsTicking] = useState<string | number | null>(null);
   const [showPopup, setShowPopup] = useState(false);
   const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
   // const [selectedDate, setSelectedDate] = useState<Date | null>(null);
@@ -62,16 +52,39 @@ const [isTicking, setIsTicking] = useState<string | number | null>(null);
     <>
       <div className="relative w-full h-screen flex">
         <div className="w-full flex flex-col max-w-3xl mx-auto py-10  ">
-          <h1 className="text-sm md:text-lg font-bold mb:0.5 md:mb-1">Today</h1>
+          <h1 className="text-sm md:text-2xl font-bold mb:0.5 md:mb-1">
+            Today
+          </h1>
           <p className="text-sm text-gray-500 mb-2">
             {filteredTasks.length} task
           </p>
           {filteredTasks.length === 0 ? (
-            <div className="text-center py-0.5 md:py-2 w-full">
-              <p className="text-muted-foreground mt-3">
-                No tasks yet. Add one to get started!
-              </p>
-            </div>
+            <>
+              
+              <div className="flex flex-col items-center justify-center text-center py-0.5 md:py-2 w-full">
+                <Image
+                  width={200}
+                  height={200}
+                  src="/taday1.png"
+                  alt="Umar"
+                  className="w-64 h-46 rounded-full"
+                />
+                <h1>Welcome to your Today view</h1>
+                <p className="text-muted-foreground mt-3">
+                  See everything due today across all your projects.{" "}
+                </p>
+
+<button
+              className="flex items-center justify-between p-1  rounded-md hover:bg-gray-100"
+            >
+                <Plus className="w-5 h-5 bg-[#D33327] text-white rounded-full p-0.5" />
+                <p className="text-sm font-medium text-[#A81F00]">Add task</p>
+
+            </button>
+
+              </div>
+            
+            </>
           ) : (
             filteredTasks.map((task) => (
               <>
@@ -229,9 +242,7 @@ const [isTicking, setIsTicking] = useState<string | number | null>(null);
         {editPopUp && (
           <div className="absolute z-50 flex justify-center items-center h-screen w-full">
             <div className="w-full max-w-3xl">
-
               <PopUp
-              
                 // selectedDate={selectedDate || undefined}
                 handleClose={() => setEditPopUp(false)}
                 editTodoData={editTodoData}
