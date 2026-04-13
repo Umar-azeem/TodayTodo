@@ -1,9 +1,11 @@
 "use client";
 
-import { useTodoStore } from "@/state";
+import { useProjectStore, useTodoStore } from "@/state";
 import Image from "next/image";
 import { Trash2 } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { Popover, PopoverContent, PopoverTrigger } from "@radix-ui/react-popover";
+import Icon from "../../../public/icon/icons";
 
 const Completed = () => {
   const tasks = useTodoStore((state) => state.tasks);
@@ -14,6 +16,19 @@ const Completed = () => {
   
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [flashTick, setFlashTick] = useState<string | null>(null);
+  const projects = useProjectStore((s) => s.projects);
+    const [showTitle, setShowTitle] = useState(false);
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window.scrollY >= 10) {
+        setShowTitle(true); 
+      }  else {
+        setShowTitle(false); 
+      }
+    };
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   const formatDateHeading = (date: Date) => {
     const today = new Date();
@@ -59,7 +74,6 @@ const Completed = () => {
     );
   }, [tasks]);
 
-  /* ---------------- EMPTY STATE ---------------- */
   if (groupedTasks.length === 0) {
     return (
       <div className="flex justify-center mt-16">
@@ -81,6 +95,38 @@ const Completed = () => {
   }
 
   return (
+    <>
+               {showTitle && (
+              <div className="sticky top-0 z-40 mx-auto w-full  border-b bg-white">
+                <div className="flex items-center justify-between px-6 py-3">
+                  <div className="flex flex-col items-center flex-1">
+                    <h2 className="text-md font-bold text-black">
+                      Compelete
+                    </h2>
+                    <p className="text-xs text-gray-500"></p>
+                  </div>
+
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <div className="flex items-center gap-2 hover:bg-[#F1EFED] p-1.5 rounded-md font-semibold text-sm text-gray-600">
+                        <Icon name="three-line" className="w-6 h-6" />
+                        <span>Display: 3</span>
+                      </div>
+                    </PopoverTrigger>
+                    <PopoverContent
+                      align="start"
+                      className="w-30 bg-black text-white p-2"
+                    >
+                      <div className="space-y-2">
+                        <h4 className="font-medium">List</h4>
+                        <hr className="bg-gray-700" />
+                        <p className="text-sm">Change layout & view ⇧ V</p>
+                      </div>
+                    </PopoverContent>
+                  </Popover>
+                </div>
+              </div>
+            )}
     <div className="flex justify-center my-10">
       <div className="w-full max-w-3xl">
         <h1 className="text-2xl font-bold mb-12">Activity: All projects</h1>
@@ -171,6 +217,7 @@ const Completed = () => {
         ))}
       </div>
     </div>
+    </>
   );
 };
 

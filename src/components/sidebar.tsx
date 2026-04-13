@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import Icon from "../../public/icon/icon";
+import Icon from "../../public/icon/icons";
 import { Button } from "@/components/ui/button";
 import { DropdownMenuGroup } from "@/components/ui/dropdown-menu";
 import {
@@ -155,7 +155,7 @@ export default function Sidebar({ isOpen, closeSidebar }: SidebarProps) {
           </div>{" "}
           <div className="flex items-center justify-center gap-2 ">
             <Icon
-              name="bill"
+              name="bell"
               className="w-8 h-8 font-extralight text-gray-400"
             />
             {isOpen && (
@@ -212,7 +212,7 @@ export default function Sidebar({ isOpen, closeSidebar }: SidebarProps) {
                     : "text-gray-700 hover:bg-gray-100"
                 }`}
               >
-                <Icon name="Today" className="w-8 h-8 text-gray-600" />
+                <Icon name="today" className="w-8 h-8 text-gray-600" />
                 <p className="h-7"> Today</p>
               </Link>
 
@@ -225,7 +225,7 @@ export default function Sidebar({ isOpen, closeSidebar }: SidebarProps) {
                     : "text-gray-700 hover:bg-gray-100"
                 }`}
               >
-                <Icon name="Upcoming" className="w-8 h-8 text-gray-600" />
+                <Icon name="upcoming" className="w-8 h-8 text-gray-600" />
                 <p className="h-7">Upcoming</p>
               </Link>
 

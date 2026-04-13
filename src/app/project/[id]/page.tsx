@@ -10,11 +10,18 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { CalendarIcon, Edit, Ellipsis, Plus, Trash2 } from "lucide-react";
 import { Calendar } from "@/components/ui/calendar";
-import { useRef, useState } from "react";
+import { useEffect,  useState } from "react";
 import TaskDetails from "@/components/TaskDetails";
 import { usePopUpLogic } from "@/components/usePopUpLogic";
 import MainProjects from "@/components/mainProject";
-import PopUp from "@/components/popUp";
+import Popovers from "../../.././components/popover";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@radix-ui/react-popover";
+import Icon from "../../../../public/icon/icons";
+import { Button } from "@/components/ui/button";
 
 export default function ProjectPage() {
   const { setEditTaskId, setEditPopUp } = usePopUpLogic();
@@ -30,14 +37,22 @@ export default function ProjectPage() {
   const deleteTask = useTodoStore((state) => state.deleteTask);
   const completeTask = useTodoStore((state) => state.completeTask);
   const projectTasks = tasks.filter((task) => task.projectId === projectId);
-  const [openTaskInput, setOpenTaskInput] = useState(false);
-  const popupRef = useRef<HTMLDivElement | null>(null);
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [editTodoData, setEditTodoData] = useState({});
-  const handleTaskInput = () => setOpenTaskInput(true);
-  const handleClosePopup = () => setOpenTaskInput(false);
-
+  
+  const [showTitle, setShowTitle] = useState(false);
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window.scrollY >= 10) {
+        setShowTitle(true);
+      } else {
+        setShowTitle(false);
+      }
+    };
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
   const handleShowTask = (taskId?: string) => {
     if (taskId) setSelectedTaskId(taskId);
     setShowTask(true);
@@ -77,7 +92,36 @@ export default function ProjectPage() {
   }
   return (
     <>
-      <h5 className="text-sm px-10 font-semibold text-gray-500">
+      {showTitle && (
+        <div className="sticky top-0 z-40 mx-auto w-full  border-b bg-white">
+          <div className="flex items-center justify-between px-6 py-3">
+            <div className="flex flex-col items-center flex-1">
+              <h2 className="text-md font-bold text-black"> {project.name}</h2>
+              <p className="text-xs text-gray-500"></p>
+            </div>
+
+            <Popover>
+              <PopoverTrigger asChild>
+                <div className="flex items-center gap-2 hover:bg-[#F1EFED] p-1.5 rounded-md font-semibold text-sm text-gray-600">
+                  <Icon name="three-line" className="w-6 h-6" />
+                  <span>Display: 3</span>
+                </div>
+              </PopoverTrigger>
+              <PopoverContent
+                align="start"
+                className="w-30 bg-black text-white p-2"
+              >
+                <div className="space-y-2">
+                  <h4 className="font-medium">List</h4>
+                  <hr className="bg-gray-700" />
+                  <p className="text-sm">Change layout & view ⇧ V</p>
+                </div>
+              </PopoverContent>
+            </Popover>
+          </div>
+        </div>
+      )}
+      <h5 className=" px-8 py-5 text-sm font-medium text-gray-500">
         My Porject /
       </h5>
 
@@ -88,16 +132,41 @@ export default function ProjectPage() {
           </p>
           {todayTasks.length === 0 ? (
             <>
-              <div className="group flex flex-col justify-start text-center  w-full">
-                <button
-                  onClick={handleTaskInput}
-                  className="flex items-center gap-2 hover:text-[#A81F00]  rounded-md "
-                >
-                  <Plus className="w-5 h-5 font-thin text-[#A81F00] hover:bg-[#D33327] hover:text-white rounded-full p-0.5" />
-                  <p className="text-sm font-thin text-gray-400 hover:text-[#A81F00]">
-                    Add task
-                  </p>
-                </button>
+              <div className="group flex flex-col text-center  w-full">
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="default"
+                      className="group w-20 flex flex-row items-center px-2 py-1 rounded-md gap-1.5"
+                    >
+                      <Plus
+                        className=" min-w-4 min-h-4  text-[#D33327]  rounded-full transition-colors group-hover:bg-[#D33327] group-hover:text-white
+                "
+                      />
+                      <p
+                        className=" text-[12px]  text-gray-400 transition-colors group-hover:text-[#D33327]
+                "
+                      >
+                        Add task
+                      </p>
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent
+                    align="start"
+                    className="w-[770px]  p-0 border-b border-gray-400/80 "
+                  >
+                    <Popovers
+                      handleClose={() => {
+                        const popoverTrigger = document.querySelector(
+                          "[data-radix-popover-trigger]"
+                        );
+                        if (popoverTrigger) {
+                          (popoverTrigger as HTMLElement).click();
+                        }
+                      }}
+                    />
+                  </PopoverContent>
+                </Popover>
                 <div className="hidden group-hover:flex flex-row justify-center items-center w-full">
                   <hr className="w-full h-[2px] bg-[#D33322]" />
                   <p className="text-xs font-semibold text-[#D33322] min-w-20 mx-2">
@@ -229,13 +298,40 @@ export default function ProjectPage() {
                   </div>
                 </div>
               ))}
-              <button
-                onClick={handleTaskInput}
-                className="flex  pt-3  items-center gap-2 hover:text-[#A81F00]  rounded-md "
-              >
-                <Plus className="w-5 h-5 font-thin text-[#A81F00] hover:bg-[#D33327] hover:text-white rounded-full p-0.5" />
-                <p className="text-sm font-thin text-[#A81F00]">Add task</p>
-              </button>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="default"
+                    className="group flex flex-row items-center px-2 py-1 rounded-md gap-1.5"
+                  >
+                    <Plus
+                      className=" min-w-4 min-h-4  text-[#D33327]  rounded-full transition-colors group-hover:bg-[#D33327] group-hover:text-white
+                "
+                    />
+                    <p
+                      className=" text-[12px]  text-gray-400 transition-colors group-hover:text-[#D33327]
+                "
+                    >
+                      Add task
+                    </p>
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent
+                  align="start"
+                  className="w-[770px]  p-0 border-b border-gray-400/80 "
+                >
+                  <Popovers
+                    handleClose={() => {
+                      const popoverTrigger = document.querySelector(
+                        "[data-radix-popover-trigger]"
+                      );
+                      if (popoverTrigger) {
+                        (popoverTrigger as HTMLElement).click();
+                      }
+                    }}
+                  />
+                </PopoverContent>
+              </Popover>
             </div>
           )}
         </div>
@@ -255,7 +351,7 @@ export default function ProjectPage() {
           </div>
         )}
         <>
-          {openTaskInput && (
+          {/* {openTaskInput && (
             <div className="absolute h-screen flex justify-center items-center z-50 w-full">
               <div
                 ref={popupRef}
@@ -267,7 +363,7 @@ export default function ProjectPage() {
                 />
               </div>
             </div>
-          )}
+          )} */}
         </>
       </div>
     </>

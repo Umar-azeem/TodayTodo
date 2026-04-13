@@ -84,8 +84,8 @@ function MainProjects() {
   };
 
   return (
-    <div className="w-full max-w-3xl">
-      <h1 className="text-lg font-bold mb-1">My Projects</h1>
+    <div className="w-full max-w-3xl ">
+      <h1 className="text-2xl font-bold mt-8 mb-1">My Projects</h1>
       <p className="text-sm text-gray-500 mb-4">Free</p>
       <div className="flex flex-col gap-2 mb-4">
         <input
@@ -93,7 +93,7 @@ function MainProjects() {
           placeholder="Search projects"
           value={searchText}
           onChange={(e) => setSearchText(e.target.value)}
-          className="border border-gray-300 rounded px-3 py-2"
+          className="border border-gray-300 rounded px-2 py-0.5"
         />
 
         <div className="flex justify-between items-center">

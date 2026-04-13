@@ -1,68 +1,88 @@
 "use client";
-import Icon from "../../public/icon/icon";
-
-import { useEffect, useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import Sidebar from "@/components/sidebar";
 import "./globals.css";
+import { SidebarProvider } from "@/components/ui/sidebar";
+// import { useEffect, useState } from "react";
+// import {
+//   Popover,
+//   PopoverContent,
+//   PopoverTrigger,
+// } from "@/components/ui/popover";
+// import Icon from "../../public/icon/icons";
+//  import { usePathname } from "next/navigation";
+
+import SideBars from "@/components/sideBars";
+import CustomSidebarButton from "@/components/CustomSidebarButton";
 interface LayoutProps {
   children: React.ReactNode;
 }
 export default function RootLayout({ children }: LayoutProps) {
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [isMobile, setIsMobile] = useState(false);
+  // const pathname = usePathname();
+  //   const [showTitle, setShowTitle] = useState(false);
 
-  useEffect(() => {
-    const handleResize = () => {
-      const mobile = window.innerWidth < 768;
-      setIsMobile(mobile);
-      if (mobile) setIsSidebarOpen(false);
-    };
-    handleResize();
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
+  // const getPageTitle = (pathname: string) => {
+  //   if (pathname === "/inbox") return "Inbox";
+  //   if (pathname === "/today") return "Today";
+  //   if (pathname === "/upcoming") return "Upcoming";
+  //   if (pathname === "/complete") return "Complete";
+  //   return "";
+  // };
 
-  const toggleSidebar = () => setIsSidebarOpen((prev) => !prev);
-
+  // useEffect(() => {
+  //   const handleScroll = () => {
+  //     if (window.scrollY >= 10) {
+  //       setShowTitle(true); // scroll down → show
+  //     }  else {
+  //       setShowTitle(false); // top → hide
+  //     }
+  //   };
+  //   window.addEventListener("scroll", handleScroll);
+  //   return () => window.removeEventListener("scroll", handleScroll);
+  // }, []);
   return (
     <html lang="en">
       <body className="max-h-screen w-full flex flex-row relative">
-        <motion.div
-          initial={false}
-          animate={{ width: isSidebarOpen ? 240 : 0 }}
-          transition={{ duration: 0.3 }}
-          className=""
-        >
-        <div className="">
-          <Sidebar
-            isOpen={isSidebarOpen}
-            closeSidebar={() => setIsSidebarOpen(false)}
-          />
+        <SidebarProvider>
+          <div className="">
+            <SideBars />
           </div>
-        </motion.div>
+          <main className="relative flex-1 w-full  ">
+            {/* {showTitle && (
+              <div className="sticky top-0 z-40 mx-auto w-full  border-b bg-white">
+                <div className="flex items-center justify-between px-6 py-3">
+                  <div className="flex flex-col items-center flex-1">
+                    <h2 className="text-md font-bold text-black">
+                      {getPageTitle(pathname)}
+                    </h2>
+                    <p className="text-xs text-gray-500"></p>
+                  </div>
 
-        <AnimatePresence>
-          {!isSidebarOpen && (
-            <motion.button
-              key="toggle-btn"
-              onClick={toggleSidebar}
-              className="fixed top-2 left-2 z-50 p-0.5 bg-white"
-              initial={{ x: -50, opacity: 0 }}
-              animate={{ x: 5, opacity: 1 }}
-              exit={{ x: -50, opacity: 0 }}
-              transition={{ type: "spring", stiffness: 300, damping: 30 }}
-            >
-              <Icon
-                name="openClose"
-                className="w-8 h-8 font-light  text-gray-400"
-              />{" "}
-            </motion.button>
-          )}
-        </AnimatePresence>
-
-        <main className=" flex-1 w-full p-6 md:p-0.5 ">{children}</main>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <div className="flex items-center gap-2 hover:bg-[#F1EFED] p-1.5 rounded-md font-semibold text-sm text-gray-600">
+                        <Icon name="three-line" className="w-6 h-6" />
+                        <span>Display: 3</span>
+                      </div>
+                    </PopoverTrigger>
+                    <PopoverContent
+                      align="start"
+                      className="w-30 bg-black text-white p-2"
+                    >
+                      <div className="space-y-2">
+                        <h4 className="font-medium">List</h4>
+                        <hr className="bg-gray-700" />
+                        <p className="text-sm">Change layout & view ⇧ V</p>
+                      </div>
+                    </PopoverContent>
+                  </Popover>
+                </div>
+              </div>
+            )} */}
+            <div className="absolute top-4 px-2 z-50">
+              <CustomSidebarButton />
+            </div>
+            <div className="w-full "> {children}</div>
+          </main>
+        </SidebarProvider>
       </body>
     </html>
   );
