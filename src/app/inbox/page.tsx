@@ -115,7 +115,7 @@ const Inbox = () => {
                   See everything due today across all your projects.{" "}
                 </p>
 
-                    <div className="w-full ">
+                    <div className="w-full flex justify-center items-center">
                             <Popover>
                               <PopoverTrigger asChild>
                                 <Button
@@ -129,7 +129,7 @@ const Inbox = () => {
                                   <p
                                     className=" text-[12px]  text-gray-400 transition-colors group-hover:text-[#D33327]"
                                   >
-                                    Add task
+                                    Add task 
                                   </p>
                                 </Button>
                               </PopoverTrigger>
